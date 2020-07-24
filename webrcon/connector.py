@@ -59,6 +59,7 @@ class RconConnector:
         while not sent:
             try:
                 await self.ws.send(data)
+                sent = True
             except websockets.ConnectionClosed:
                 await asyncio.sleep((retry_counter + 1) * 5)
                 retry_counter += 1
@@ -97,4 +98,5 @@ class RconConnector:
             elif identifier == 0 and self._bucket.get(0):
                 await run_f_appropriately(self._bucket[0], data)
             elif identifier in self._bucket:
-                await run_f_appropriately(self._bucket.get(identifier), data)
+                await run_f_appropriately(self._bucket[identifier], data)
+                del self._bucket[identifier]
