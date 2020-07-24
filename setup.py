@@ -12,7 +12,7 @@ setup(name='webrcon',
       python_requires='>=3.6',
       platforms=['Windows', 'Linux', 'OSX'],
       zip_safe=True,
-      license='BSD-3',
+      license='BlueOak-1.0.0',
       description='Basic async interface for Rust\'s WebRcon protocol',
       long_description=long,
       keywords='rust webrcon rcon websockets ws rust_game async'
