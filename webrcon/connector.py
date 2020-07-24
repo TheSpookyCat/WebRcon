@@ -69,7 +69,8 @@ class RconConnector:
                 retry_counter += 1
             if retry_counter >= 5:
                 # Could not reconnect / send the data
-                break
+                return False
+        return True
 
     async def receive_data(self):
         # noinspection DuplicatedCode
