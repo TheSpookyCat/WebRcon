@@ -35,6 +35,9 @@ class RconConnector:
             self.ws = await websockets.connect(self.uri, **kwargs)
             self._ws_kwargs = kwargs
             self._closed = False
+            if self._process_task:
+                self._process_task.cancel()
+            self._process_task = self._loop.create_task(self.receive_data())
         except websockets.WebSocketProtocolError:
             raise InvalidServer
 
@@ -68,6 +71,7 @@ class RconConnector:
                 break
 
     async def receive_data(self):
+        # noinspection DuplicatedCode
         async def run_f_appropriately(f, d):
             if inspect.iscoroutinefunction(f):
                 await f(d)
