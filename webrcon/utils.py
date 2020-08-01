@@ -1,8 +1,15 @@
 from collections import namedtuple
 import re
+import inspect
 
 re_pseudo_tsv = re.compile(r'([a-zA-Z]+)([ ]+(?![a-zA-Z]))?')
 
+
+async def maybe_await(f, *args):
+    rv = f(*args)
+    if inspect.isawaitable(rv):
+        return await rv
+    return rv
 
 # noinspection PyArgumentList
 def parse_pseudotsv(data):
