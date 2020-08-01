@@ -11,9 +11,14 @@ async def maybe_await(f, *args):
         return await rv
     return rv
 
+
 # noinspection PyArgumentList
 def parse_pseudotsv(data):
-    table = '\n'.join(data.split('\n\n')[1:]).split('\n')
+    double_split = data.split('\n\n')
+    if len(double_split) >= 2:
+        table = '\n'.join(data.split('\n\n')[1:]).split('\n')
+    else:
+        table = data.split('\n')
     column_widths = {}
     matches = re_pseudo_tsv.finditer(table[0])
     for match in matches:
