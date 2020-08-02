@@ -2,7 +2,7 @@ from collections import namedtuple
 import re
 import inspect
 
-re_pseudo_tsv = re.compile(r'([a-zA-Z]+)([ ]+(?![a-zA-Z]))?')
+re_pseudo_tsv = re.compile(r'([\S]+)([ ]+(?![\S]))?')
 
 
 async def maybe_await(f, *args):
