@@ -20,9 +20,17 @@ def parse_pseudotsv(data):
     else:
         table = data.split('\n')
     column_widths = {}
+    duplicates = {}
     matches = re_pseudo_tsv.finditer(table[0])
     for match in matches:
-        column_widths[match.group(1)] = match.span()
+        header = match.group(1)
+        if header in column_widths:
+            if header in duplicates:
+                duplicates[header] += 1
+            else:
+                duplicates[header] = 1
+            header += str(duplicates[header])
+        column_widths[header] = match.span()
     items = []
     item = namedtuple('TSVItem', ' '.join(column_widths.keys()))
     for row in table[1:]:
