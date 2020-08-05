@@ -13,12 +13,12 @@ async def maybe_await(f, *args):
 
 
 # noinspection PyArgumentList
-def parse_pseudotsv(data):
-    double_split = data.split('\n\n')
+def parse_pseudotsv(data, join_on='\n', split_on='\n\n'):
+    double_split = data.split(split_on)
     if len(double_split) >= 2:
-        table = '\n'.join(data.split('\n\n')[1:]).split('\n')
+        table = join_on.join(data.split(split_on)[1:]).split(join_on)
     else:
-        table = data.split('\n')
+        table = data.split(join_on)
     column_widths = {}
     duplicates = {}
     matches = re_pseudo_tsv.finditer(table[0])

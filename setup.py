@@ -6,7 +6,7 @@ with open('README.md', 'r') as fp:
 setup(name='webrcon',
       author='lewdneko',
       url='https://github.com/lewdneko/webrcon',
-      version='1.0.5',
+      version='1.0.6',
       packages=['webrcon'],
       setup_requires=['wheel'],
       python_requires='>=3.6',
