@@ -1,16 +1,36 @@
 from collections import namedtuple
 import re
+import inspect
 
-re_pseudo_tsv = re.compile(r'([a-zA-Z]+)([ ]+(?![a-zA-Z]))?')
+re_pseudo_tsv = re.compile(r'([\S]+)([ ]+(?![\S]))?')
+
+
+async def maybe_await(f, *args):
+    rv = f(*args)
+    if inspect.isawaitable(rv):
+        return await rv
+    return rv
 
 
 # noinspection PyArgumentList
-def parse_pseudotsv(data):
-    table = '\n'.join(data.split('\n\n')[1:]).split('\n')
+def parse_pseudotsv(data, join_on='\n', split_on='\n\n'):
+    double_split = data.split(split_on)
+    if len(double_split) >= 2:
+        table = join_on.join(data.split(split_on)[1:]).split(join_on)
+    else:
+        table = data.split(join_on)
     column_widths = {}
+    duplicates = {}
     matches = re_pseudo_tsv.finditer(table[0])
     for match in matches:
-        column_widths[match.group(1)] = match.span()
+        header = match.group(1)
+        if header in column_widths:
+            if header in duplicates:
+                duplicates[header] += 1
+            else:
+                duplicates[header] = 1
+            header += str(duplicates[header])
+        column_widths[header] = match.span()
     items = []
     item = namedtuple('TSVItem', ' '.join(column_widths.keys()))
     for row in table[1:]:

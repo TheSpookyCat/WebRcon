@@ -1,9 +1,9 @@
 import asyncio
-import inspect
 import json
 import websockets
 
 from .exceptions import InvalidServer, ConnectionClosed
+from .utils import maybe_await
 
 
 # noinspection SpellCheckingInspection
@@ -18,12 +18,12 @@ class RconConnector:
         self._process_task: asyncio.Future = None
         self._bucket = {}
         self._closed = True
-        if message_callback and not inspect.isfunction(message_callback):
+        if message_callback and not callable(message_callback):
             raise TypeError('Expected type `function` for `message_callback`, got type `{0}`'.format(
                 type(message_callback)))
         elif message_callback:
             self._bucket[-1] = message_callback
-        if console_callback and not inspect.isfunction(console_callback):
+        if console_callback and not callable(console_callback):
             raise TypeError('Expected type `function` for `console_callback`, got type `{0}`'.format(
                 type(console_callback)))
         elif console_callback:
@@ -46,7 +46,7 @@ class RconConnector:
         await self.ws.close(reason='Client requested shutdown of WS connection.')
 
     async def command(self, command, callback):
-        if not inspect.isfunction(callback):
+        if not callable(callback):
             raise TypeError('Expected type `function` for `message_callback`, got type `{0}`'.format(
                 type(callback)))
         if self._closed:
@@ -74,11 +74,6 @@ class RconConnector:
 
     async def receive_data(self):
         # noinspection DuplicatedCode
-        async def run_f_appropriately(f, d):
-            if inspect.iscoroutinefunction(f):
-                await f(d)
-            else:
-                f(d)
         closed_counter = 0
         while not self._closed:
             data = {}
@@ -95,9 +90,9 @@ class RconConnector:
 
             identifier = data.get('Identifier')
             if identifier == -1 and self._bucket.get(-1):
-                await run_f_appropriately(self._bucket[-1], data)
+                await maybe_await(self._bucket[-1], data)
             elif identifier == 0 and self._bucket.get(0):
-                await run_f_appropriately(self._bucket[0], data)
+                await maybe_await(self._bucket[0], data)
             elif identifier in self._bucket:
-                await run_f_appropriately(self._bucket[identifier], data)
+                await maybe_await(self._bucket[identifier], data)
                 del self._bucket[identifier]
