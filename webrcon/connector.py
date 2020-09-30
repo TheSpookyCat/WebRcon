@@ -1,6 +1,7 @@
 import asyncio
 import json
 import websockets
+import functools
 
 from .exceptions import InvalidServer, ConnectionClosed
 from .utils import maybe_await
@@ -90,9 +91,12 @@ class RconConnector:
 
             identifier = data.get('Identifier')
             if identifier == -1 and self._bucket.get(-1):
-                await maybe_await(self._bucket[-1], data)
+                partial = functools.partial(maybe_await, self._bucket[-1], data)
+                self._loop.create_task(partial)
             elif identifier == 0 and self._bucket.get(0):
-                await maybe_await(self._bucket[0], data)
+                partial = functools.partial(maybe_await, self._bucket[0], data)
+                self._loop.create_task(partial)
             elif identifier in self._bucket:
-                await maybe_await(self._bucket[identifier], data)
+                partial = functools.partial(maybe_await, self._bucket[identifier], data)
+                self._loop.create_task(partial)
                 del self._bucket[identifier]
