@@ -32,7 +32,12 @@ def parse_pseudotsv(data, join_on='\n', split_on='\n\n'):
             header += str(duplicates[header])
         column_widths[header] = match.span()
     items = []
-    item = namedtuple('TSVItem', ' '.join(column_widths.keys()))
+    try:
+        item = namedtuple('TSVItem', ' '.join(column_widths.keys()))
+    except ValueError:
+        print('Parse Error (webrcon/utils.py#L36)')
+        print(f'Input Data: {data}')
+        raise
     for row in table[1:]:
         if row == '':
             break
